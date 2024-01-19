@@ -3,17 +3,26 @@
 import { lastRequests } from '@/_mock/user/lastrequests';
 import { MAX_REQUEST } from '@/constants';
 import { Box, Button, Card, Stack, Typography } from '@mui/material';
+import { useSession } from 'next-auth/react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 export default function Request() {
   const requests = lastRequests;
   const [loading, setLoading] = useState(false);
+
+  const router = useRouter();
+
+  const session = useSession();
+
   function requestCollection() {
     setLoading(true);
     console.log('Requesting collection');
     setLoading(false);
   }
+
+  if (session.status === 'unauthenticated') router.push('/api/auth/signin');
 
   return (
     <Stack direction={'column'} gap={5} paddingY={5}>
