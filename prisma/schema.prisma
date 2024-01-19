@@ -36,16 +36,18 @@ model Session {
 }
 
 model User {
-  id            String    @id @default(cuid())
+  id            String              @id @default(cuid())
   name          String?
-  email         String?   @unique
+  email         String?             @unique
   password      String?
   emailVerified DateTime?
   phoneNumber   String
   homeNumber    String
   image         String?
+  coord         String?
   accounts      Account[]
   sessions      Session[]
+  requests      CollectionRequest[]
 }
 
 model VerificationToken {
@@ -54,4 +56,11 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+model CollectionRequest {
+  id     String  @id @default(cuid())
+  coord  String?
+  User   User?   @relation(fields: [userId], references: [id])
+  userId String?
 }
