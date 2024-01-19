@@ -39,8 +39,10 @@ model User {
   id            String    @id @default(cuid())
   name          String?
   email         String?   @unique
+  password      String?
   emailVerified DateTime?
   phoneNumber   String
+  homeNumber    String
   image         String?
   accounts      Account[]
   sessions      Session[]

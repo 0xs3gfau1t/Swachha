@@ -1,35 +1,74 @@
 import prisma from '@/lib/prisma';
 import { AuthOptions } from 'next-auth';
-import GoogleProvider from 'next-auth/providers/google';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { PrismaAdapter } from '@auth/prisma-adapter';
 import { Adapter } from 'next-auth/adapters';
+import { hashSync, compareSync } from 'bcryptjs';
 
 export const authOptions: AuthOptions = {
   adapter: PrismaAdapter(prisma) as Adapter,
   providers: [
     CredentialsProvider({
+      id: 'login-user',
+      name: 'Login User',
+      credentials: {
+        email: {
+          type: 'text',
+          label: 'Email',
+          value: '',
+          placeholder: 'Email',
+        },
+        password: {
+          type: 'password',
+          label: 'Password',
+          value: '',
+          placeholder: 'Password',
+        },
+      },
+      async authorize(creds) {
+        if (!creds) return null;
+        const user = await prisma.user.findUnique({ where: { email: creds.email } });
+        if (user && user.password && compareSync(creds.password, user.password)) return user;
+        return null;
+      },
+    }),
+    CredentialsProvider({
       id: 'register-user',
       name: 'Register User',
       credentials: {
-        name: { type: 'text', label: 'Name', value: '', placeholder: 'User name' },
-        house_number: {
+        token: {
           type: 'text',
-          label: 'House number',
+          label: 'Verification Token',
           value: '',
-          placeholder: 'House number',
+          placeholder: 'Verification Token',
         },
-        phone_number: {
-          type: 'text',
-          label: 'Phone number',
+        password: {
+          type: 'password',
+          label: 'Password',
           value: '',
-          placeholder: 'Phone number',
+          placeholder: 'Password',
         },
       },
-      authorize: (creds) => {
-        prisma.user.create({ data: { name: creds?.name } });
+      async authorize(creds) {
+        if (!creds) return null;
+        try {
+          const tok = await prisma.verificationToken.findUnique({
+            where: { token: creds.token },
+          });
+          if (!tok) return null;
 
-        creds;
+          const hashedPassword = hashSync(creds.password, 10);
+          const user = await prisma.user.update({
+            where: { id: tok.identifier },
+            data: { password: hashedPassword },
+          });
+
+          if (user) await prisma.verificationToken.delete({ where: { token: tok.token } });
+          return user;
+        } catch (err) {
+          console.error(err);
+          return null;
+        }
       },
     }),
   ],
