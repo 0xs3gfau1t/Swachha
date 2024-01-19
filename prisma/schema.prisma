@@ -59,8 +59,10 @@ model VerificationToken {
 }
 
 model CollectionRequest {
-  id     String  @id @default(cuid())
-  coord  String?
-  User   User?   @relation(fields: [userId], references: [id])
-  userId String?
+  id        String  @id @default(cuid())
+  latitude  Float
+  longitude Float
+  coord     String?
+  User      User?   @relation(fields: [userId], references: [id])
+  userId    String?
 }
