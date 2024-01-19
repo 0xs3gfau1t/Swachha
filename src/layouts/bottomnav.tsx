@@ -2,16 +2,12 @@
 
 import BottomNavItem from '@/components/bottom-nav-item';
 import { Stack } from '@mui/material';
-import { AiOutlineHeatMap, AiOutlineHome, AiOutlineUser } from 'react-icons/ai';
+import { AiOutlineHome, AiOutlineUser } from 'react-icons/ai';
 
 const navItems = [
   {
     icon: <AiOutlineHome size={40} />,
     link: '/user',
-  },
-  {
-    icon: <AiOutlineHeatMap size={40} />,
-    link: '/user/request',
   },
   {
     icon: <AiOutlineUser size={40} />,

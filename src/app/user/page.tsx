@@ -3,6 +3,7 @@
 import { lastRequests } from '@/_mock/user/lastrequests';
 import { MAX_REQUEST } from '@/constants';
 import { Box, Button, Card, Stack, Typography } from '@mui/material';
+import Image from 'next/image';
 import { useState } from 'react';
 
 export default function Request() {
@@ -38,10 +39,10 @@ export default function Request() {
           </Stack>
         </Card>
       </Stack>
-      <Card sx={{ padding: 1, borderRadius: '10px' }}>
+      <Card sx={{ padding: 2, borderRadius: '10px' }}>
         <Stack direction={'column'} gap={2} alignItems={'center'}>
           <Typography variant='h5'>Recent Requests</Typography>
-          {/* TODO: Include calendar*/}
+          <Image src={'/cal.png'} width={200} height={200} alt='calendar requests' />
         </Stack>
       </Card>
       <Card sx={{ padding: 2, borderRadius: '10px' }}>
@@ -74,14 +75,15 @@ export default function Request() {
           </Box>
         </Stack>
       </Card>
-
       <Button
         variant='contained'
         sx={{ alignSelf: 'center' }}
         onClick={requestCollection}
-        disabled={loading}
+        disabled={loading || !!requests.find((i) => i.completedAt === null)}
       >
-        Request for collection
+        {!!requests.find((i) => i.completedAt === null)
+          ? 'Request opened'
+          : 'Request for collection'}
       </Button>
     </Stack>
   );
