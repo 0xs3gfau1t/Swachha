@@ -19,7 +19,7 @@ const HomePage = () => {
           classifying waste according to degradation nature. Or be it by optimizing waste collection
           routines and routes rather than currently implemented timely collection.
         </Typography>
-        <Link href={'/user/request'}>
+        <Link href={'/user'}>
           <Stack
             direction={'column'}
             display={'flex'}
