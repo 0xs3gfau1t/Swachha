@@ -1,4 +1,5 @@
-import { Stack, Typography } from '@mui/material';
+'use client';
+import { Typography } from '@mui/material';
 
 export default function AdminDashboard() {
   return (
