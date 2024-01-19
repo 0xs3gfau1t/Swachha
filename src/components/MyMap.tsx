@@ -1,5 +1,6 @@
 import '@/app/global.css';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { GrFormView } from 'react-icons/gr';
 import {
   MapConsumer,
   MapContainer,
@@ -16,11 +17,12 @@ import 'leaflet-defaulticon-compatibility';
 import 'leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css';
 import { CollectionRequest, Routes } from '@prisma/client';
 import {
+  DispatchRoute,
   addRequest,
   getAllRequest,
   getDispatchedRoutes,
+  getRoute,
 } from '@/lib/serverActions/collectionRequest';
-import { Awaitable } from 'next-auth';
 
 const createRoutineMachineLayer = (_props: ControlOptions) => {
   const instance = L.Routing.control({
@@ -79,11 +81,6 @@ export default function MyMap() {
 
   return (
     <div className='w-full h-full overflow-scroll'>
-      <div className='w-full p-2 flex flex-col items-center'>
-        <button className='bg-white ml-auto hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border-b border-gray-400 rounded shadow'>
-          Dispatch
-        </button>
-      </div>
       <MapContainer
         ref={mapRef}
         touchZoom={false}
@@ -91,6 +88,7 @@ export default function MyMap() {
         center={{ lat: 26.791905896045343, lng: 87.29230341862062 }}
         zoom={17}
         style={{ height: '75%', width: '100%', zIndex: '0!important' }}
+        className='rounded-md'
       >
         <TileLayer
           url='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
@@ -101,42 +99,78 @@ export default function MyMap() {
         <MapConsumer eventsHandler={mapHandlers} />
         <RoutingMachine ref={routingRef} />
       </MapContainer>
-      <div className=''>
-        <div className='relative overflow-x-auto shadow-md sm:rounded-t-sm'>
-          <table className='w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400'>
-            <thead className='text-xs text-gray-700 uppercase dark:bg-gray-700 dark:text-gray-400'>
-              <tr>
-                <th scope='col' className='px-6 py-3'>
-                  Created At
+      <div className='w-full p-2 flex flex-row-reverse items-center gap-2'>
+        <button
+          className='bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border-b border-gray-400 rounded shadow'
+          onClick={() => {
+            DispatchRoute(positions.map((position) => position.id)).then((data) => {
+              setPositions([]);
+              setRoutes((o) => [
+                ...o,
+                {
+                  createdAt: data.createdAt,
+                  id: data.id,
+                  status: data.status,
+                  _count: { requests: positions.length },
+                },
+              ]);
+            });
+          }}
+        >
+          Dispatch
+        </button>
+        <button
+          className='bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border-b border-gray-400 rounded shadow'
+          onClick={() => {
+            getAllRequest().then((data) => {
+              setPositions(data);
+            });
+          }}
+        >
+          Reload
+        </button>
+      </div>
+      <div className='relative overflow-x-auto shadow-md sm:rounded-t-sm'>
+        <table className='w-full text-sm text-left rtl:text-right'>
+          <thead className='text-xs text-gray-700 uppercase'>
+            <tr>
+              <th scope='col' className='px-6 py-3'>
+                Created At
+              </th>
+              <th scope='col' className='px-6 py-3'>
+                Points
+              </th>
+              <th scope='col' className='px-6 py-3'>
+                Status
+              </th>
+              <th scope='col' className='px-6 py-3'>
+                <span>Actions</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {routes.map((route) => (
+              <tr className='bg-white border-b hover:bg-gray-50'>
+                <th scope='row' className='px-6 py-4 font-medium text-gray-900 whitespace-nowrap'>
+                  {route.createdAt.toISOString()}
                 </th>
-                <th scope='col' className='px-6 py-3'>
-                  Points
-                </th>
-                <th scope='col' className='px-6 py-3'>
-                  Status
-                </th>
-                <th scope='col' className='px-6 py-3'>
-                  <span>View</span>
-                </th>
+                <td className='px-6 py-4'>{route._count.requests}</td>
+                <td className='px-6 py-4'>{route.status}</td>
+                <td
+                  className='px-6 py-4 cursor-pointer'
+                  onClick={() =>
+                    getRoute(route.id).then((data) => setPositions(data?.requests || []))
+                  }
+                >
+                  <button className='w-full h-full flex flex-row'>
+                    <GrFormView className='text-lg' />
+                    <span>View</span>
+                  </button>
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {routes.map((routes) => (
-                <tr className='bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600'>
-                  <th
-                    scope='row'
-                    className='px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white'
-                  >
-                    {routes.createdAt.toISOString()}
-                  </th>
-                  <td className='px-6 py-4'>{routes._count.requests}</td>
-                  <td className='px-6 py-4'>{routes.status}</td>
-                  <td className='px-6 py-4 text-right'>View</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );
