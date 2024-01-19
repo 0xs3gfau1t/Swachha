@@ -7,7 +7,8 @@ import NavComponent from '@/components/admin-nav';
 const navEntries = [
   { name: 'Home', link: '/admin/dashboard' },
   { name: 'Reports', link: '/admin/dashboard/reports' },
-  { name: 'Requests', link: '/admin/dashboard/reports' },
+  { name: 'Requests', link: '/admin/dashboard/requests' },
+  { name: 'Register User', link: '/admin/dashboard/register' },
 ];
 
 export default function AdminNav({ children }: { children: ReactNode }) {
@@ -32,7 +33,7 @@ export default function AdminNav({ children }: { children: ReactNode }) {
       paddingY={3}
     >
       <Typography>Logo</Typography>
-      <Button variant='outlined' onClick={() => signOut()}>
+      <Button variant='outlined' color='warning' onClick={() => signOut()}>
         SignOut
       </Button>
     </Stack>
