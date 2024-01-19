@@ -10,6 +10,7 @@ export const addRequest = async (latitude: number, longitude: number) => {
   const request = await prisma.collectionRequest.create({
     data: {
       User: { connect: { id: session.user.id } },
+      status: 'pending',
       latitude,
       longitude,
     },
@@ -25,16 +26,22 @@ export const getRequests = async (
   console.log({ from, to });
   return prisma.collectionRequest.findMany({
     where: {
-      AND: [
-        {
-          latitude: { gte: from.lat, lte: to.lat },
-          longitude: { gte: from.lng, lte: to.lng },
-        },
-      ],
+      latitude: { gte: from.lat, lte: to.lat },
+      longitude: { gte: from.lng, lte: to.lng },
     },
   });
 };
 
-export const getAll = async () => {
+export const getAllRequest = async () => {
   return prisma.collectionRequest.findMany({});
+};
+
+export const DispatchRoute = async (requestIds: string[]) => {
+  return prisma.routes.create({
+    data: { status: 'pending', requests: { connect: requestIds.map((id) => ({ id })) } },
+  });
+};
+
+export const getDispatchedRoutes = async () => {
+  return prisma.routes.findMany({ include: { _count: { select: { requests: true } } } });
 };

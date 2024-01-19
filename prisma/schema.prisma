@@ -62,7 +62,16 @@ model CollectionRequest {
   id        String  @id @default(cuid())
   latitude  Float
   longitude Float
-  coord     String?
+  status    String
   User      User?   @relation(fields: [userId], references: [id])
   userId    String?
+  Routes    Routes? @relation(fields: [routesId], references: [id])
+  routesId  String?
+}
+
+model Routes {
+  id        String              @id @default(cuid())
+  requests  CollectionRequest[]
+  status    String
+  createdAt DateTime            @default(now())
 }

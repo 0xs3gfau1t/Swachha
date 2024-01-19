@@ -16,7 +16,7 @@ export const MapContainer = forwardRef<
   MapContainerProps & { children: JSX.Element | JSX.Element[] }
 >((props, ref) => <LazyMapContainer {...props} forwardedRef={ref} />);
 
-export const TileLayer: any = dynamic(() => import('react-leaflet').then((m) => m.TileLayer), {
+export const TileLayer = dynamic(() => import('react-leaflet').then((m) => m.TileLayer), {
   ssr: false,
 });
 export const ZoomControl = dynamic(() => import('react-leaflet').then((m) => m.ZoomControl), {

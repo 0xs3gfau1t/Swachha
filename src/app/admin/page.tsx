@@ -4,6 +4,7 @@ import { API_URL } from '@/constants';
 import { Button, Container, Grid, Typography } from '@mui/material';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { signIn } from 'next-auth/react';
 
 export default function Admin() {
   const [email, setEmail] = useState('');
@@ -13,11 +14,9 @@ export default function Admin() {
 
   async function onSubmit() {
     try {
-      const res = await fetch(API_URL, {
-        method: 'POST',
-        body: JSON.stringify({ email, password }),
-      });
-      if (res.ok) {
+      const res = await signIn('login-user', { email, password, redirect: false });
+      signIn("register-")
+      if (res?.ok) {
         router.push('/admin/dashboard');
       }
     } catch (e) {
