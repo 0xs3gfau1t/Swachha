@@ -18,7 +18,7 @@ export type RegisterRequest = {
   homeNumber: string;
 };
 
-async function handler(req: NextRequest) {
+export async function POST(req: NextRequest) {
   const creds: RegisterRequest = await req.json();
 
   console.log(creds);
@@ -74,5 +74,3 @@ async function handler(req: NextRequest) {
 
   return NextResponse.json({ message: 'User created', data: user }, { status: 201 });
 }
-
-export { handler as POST };
