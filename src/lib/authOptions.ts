@@ -1,9 +1,25 @@
 import prisma from '@/lib/prisma';
-import { AuthOptions } from 'next-auth';
+import { AuthOptions, DefaultSession } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { PrismaAdapter } from '@auth/prisma-adapter';
 import { Adapter } from 'next-auth/adapters';
 import { hashSync, compareSync } from 'bcryptjs';
+
+declare module 'next-auth' {
+  interface Session {
+    user: {
+      provider?: string;
+      id?: string;
+    } & DefaultSession['user'];
+  }
+}
+
+declare module 'next-auth/jwt' {
+  interface JWT {
+    provider?: string;
+    id?: string;
+  }
+}
 
 export const authOptions: AuthOptions = {
   adapter: PrismaAdapter(prisma) as Adapter,
@@ -73,22 +89,21 @@ export const authOptions: AuthOptions = {
     }),
   ],
   callbacks: {
-    async jwt({ token, account }) {
-      if (account) {
-        token.accessToken = account.access_token;
-      }
+    async jwt({ token, user, account }) {
+      if (account) token.provider = account.provider;
+      if (user) token.id = user.id;
       return token;
     },
-    async session({ session }) {
-      if (session && session.user) {
-        const user = await prisma.user.findFirst({
-          where: {
-            email: session?.user?.email,
-          },
-        });
-        session.user = { ...session.user, ...user };
-      }
+    async session({ session, token }) {
+      session.user.provider = token.provider;
+      session.user.id = token.id;
       return session;
     },
+  },
+  session: {
+    strategy: 'jwt',
+  },
+  theme: {
+    colorScheme: 'dark',
   },
 };
