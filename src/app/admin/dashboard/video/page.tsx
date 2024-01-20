@@ -116,7 +116,7 @@ export default function Video() {
       {videoBlob && video && (
         <div className='flex flex-col h-full w-full'>
           <div className='w-full text-center border-b border-black text-base'>VIDEO RESULT</div>
-          <div className='relative mt-10 h-1/2' ref={parentRef}>
+          <div className='relative mt-10 h-5/6' ref={parentRef}>
             <video
               src={videoBlob.toString()}
               className='h-full absolute m-auto inset-0'
