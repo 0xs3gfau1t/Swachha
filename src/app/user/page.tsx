@@ -1,16 +1,16 @@
 'use client';
 
-import { lastRequests } from '@/_mock/user/lastrequests';
 import { MAX_REQUEST } from '@/constants';
+import { getUserRequestSummary } from '@/lib/serverActions/collectionRequest';
 import { Box, Button, Card, Stack, Typography } from '@mui/material';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function Request() {
-  const requests = lastRequests;
   const [loading, setLoading] = useState(false);
+  const [summary, setSummary] = useState({ total: 0, pending: 0, dispatched: 0, fulfilled: 0 });
 
   const router = useRouter();
 
@@ -22,7 +22,13 @@ export default function Request() {
     setLoading(false);
   }
 
-  if (session.status === 'unauthenticated') router.push('/api/auth/signin');
+  useEffect(() => {
+    if (session.status === 'unauthenticated') {
+      router.push('/api/auth/signin');
+      return;
+    }
+    if (session.data) getUserRequestSummary(session.data.user.id).then(setSummary);
+  }, [session]);
 
   return (
     <Stack direction={'column'} gap={5} paddingY={5}>
@@ -31,7 +37,7 @@ export default function Request() {
         <Card sx={{ padding: 2, display: 'flex', borderRadius: '10px' }}>
           <Stack direction={'column'} alignItems={'center'}>
             <Typography fontSize={15}>Requests Made</Typography>
-            <Typography fontSize={20}>{requests.length}</Typography>
+            <Typography fontSize={20}>{summary.total}</Typography>
           </Stack>
         </Card>
 
@@ -39,11 +45,7 @@ export default function Request() {
           <Stack direction={'column'} alignItems={'center'}>
             <Typography fontSize={15}>Request Addressed</Typography>
             <Typography fontSize={20}>
-              {requests.reduce((prev, current) => {
-                if (current.completedAt) prev++;
-                return prev;
-              }, 0)}{' '}
-              / {requests.length}
+              {summary.fulfilled} / {summary.total}
             </Typography>
           </Stack>
         </Card>
@@ -70,7 +72,7 @@ export default function Request() {
           >
             <Box
               sx={{
-                width: `${Math.ceil((requests.length / MAX_REQUEST) * 100)}%`,
+                width: `${Math.ceil((summary.total / MAX_REQUEST) * 100)}%`,
                 background: '#34eb80',
                 height: '100%',
                 left: 0,
@@ -79,7 +81,7 @@ export default function Request() {
               }}
             />
             <Typography position={'absolute'} zIndex={99}>
-              {requests.length}/{MAX_REQUEST} requests
+              {summary.total}/{MAX_REQUEST} requests
             </Typography>
           </Box>
         </Stack>
@@ -87,12 +89,11 @@ export default function Request() {
       <Button
         variant='contained'
         sx={{ alignSelf: 'center' }}
+        color='primary'
         onClick={requestCollection}
-        disabled={loading || !!requests.find((i) => i.completedAt === null)}
+        disabled={loading || !!summary.pending}
       >
-        {!!requests.find((i) => i.completedAt === null)
-          ? 'Request opened'
-          : 'Request for collection'}
+        {!!summary.pending ? 'Request opened' : 'Request for collection'}
       </Button>
     </Stack>
   );

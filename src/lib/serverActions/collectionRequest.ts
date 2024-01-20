@@ -19,6 +19,19 @@ export const addRequest = async (latitude: number, longitude: number) => {
   return { message: 'Added collection request', data: request };
 };
 
+export const getUserRequestSummary = async (userId: string) => {
+  const requests = await prisma.collectionRequest.findMany({
+    where: { userId },
+    select: { id: true, status: true, Routes: true },
+  });
+  const total = requests.length;
+  const pending = requests.filter((r) => r.status === 'Pending').length;
+  const dispatched = requests.filter((r) => r.status === 'Dispatched').length;
+  const fulfilled = requests.filter((r) => r.status === 'Fulfilled').length;
+  console.log(requests)
+  return { total, pending, dispatched, fulfilled };
+};
+
 export const getRequests = async (
   from: { lat: number; lng: number },
   to: { lat: number; lng: number }
