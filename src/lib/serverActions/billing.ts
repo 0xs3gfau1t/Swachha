@@ -28,6 +28,8 @@ export async function verifyToken(token: string, amount: string) {
       data: {
         amount: Number(amount),
         user: { connect: { id: session.user.id } },
+        txId: data.type.idx || 'N/A',
+        payer: data.user.name || 'N/A',
       },
     });
 
@@ -39,7 +41,8 @@ export async function verifyToken(token: string, amount: string) {
 }
 
 export async function getBillings(userId: string) {
-  return prisma.billing.findMany({ where: { userId } });
+  const g = await prisma.billing.findMany({ where: { userId } });
+  return [...g, ...g, ...g, ...g, ...g];
 }
 
 export async function getBillingStatus(userId: string) {
@@ -47,7 +50,7 @@ export async function getBillingStatus(userId: string) {
     orderBy: { createdAt: 'asc' },
     where: { userId },
   });
-  if (!latest) return { latest: null, due: 0 };
+  if (!latest) return { latest: null, due: 10000 };
   return {
     latest,
     due: Math.ceil((new Date().getTime() - new Date(latest.createdAt).getTime()) / (1000 * 60)),

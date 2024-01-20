@@ -81,34 +81,22 @@ export default function Billing() {
       </div>
       <div className='relative flex-grow w-full overflow-x-hidden'>
         <h1 className='m-auto font-semibold text-md py-2 mb-2'>Billing History</h1>
-        <table className='w-full text-sm text-left'>
-          <thead className='text-xs text-gray-700 border uppercase'>
-            <tr>
-              <th scope='col' className='px-6 py-3 border'>
-                Payed At
-              </th>
-              <th scope='col' className='px-6 py-3 border'>
-                Amount
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {pastBill.map((bill) => (
-              <tr className='border hover:bg-gray-50' key={bill.id}>
-                <th
-                  scope='row'
-                  className='border px-6 py-4 font-medium text-gray-900 whitespace-nowrap'
-                >
-                  {bill.createdAt.toISOString()}
-                </th>
-                <td className='px-6 py-4 border'>
-                  <FaRupeeSign className='aspect-square inline-block h-full mr-2 font-thin size-4' />
-                  {(bill.amount / 100).toFixed(2)}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+
+        <ul className='flex flex-col gap-2'>
+          {pastBill.map((bill) => (
+            <li className='flex flex-row justify-between items-center border-b bg-slate-200 rounded-md p-2'>
+              <div className='flex flex-col shadow-sm'>
+                <p className='font-semibold'>{bill.payer}</p>
+                <p className='text-slate-800'>{bill.txId}</p>
+                <p className='text-slate-700 font-normal'>{bill.createdAt.toDateString()}</p>
+              </div>
+              <div className=''>
+                <FaRupeeSign className='aspect-square inline-block font-thin h-full mr-1' />
+                {(bill.amount / 100).toFixed(2)}
+              </div>
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
   );

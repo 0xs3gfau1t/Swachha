@@ -80,7 +80,9 @@ model Routes {
 
 model Billing {
   id        String   @id @default(cuid())
+  txId      String
   amount    Int
+  payer     String
   user      User     @relation(fields: [userId], references: [id])
   userId    String
   createdAt DateTime @default(now())
