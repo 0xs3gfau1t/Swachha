@@ -34,14 +34,10 @@ export type RelativePositionType = {
 };
 
 function report(frames: Classes[][], index: number, count: number) {
-  console.log(
-    'Reporting from ',
-    Math.max(0, index - count),
-    ' to ',
-    Math.min(frames.length - 1, index)
-  );
-
-  // Generate clip
+  return {
+    from: Math.max(0, index - count),
+    to: Math.min(frames.length - 1, index),
+  };
 }
 
 function reportLittering(data: Response | null | undefined) {
@@ -58,7 +54,7 @@ function reportLittering(data: Response | null | undefined) {
     } else if (litterFrameCount > FRAME_COUNT_THRESHOLD && frame[0]?.name !== 'litter_throw') {
       hasLittering = true;
       // TODO: Optimize
-      report(data.frames, ind - 1, litterFrameCount);
+      // report(data.frames, ind - 1, litterFrameCount);
       litterFrameCount = 0;
     }
   });
@@ -69,13 +65,13 @@ export default function Video() {
   const [video, setVideo] = useState<File | null>(null);
   const [videoBlob, setVideoBlob] = useState<null | ArrayBuffer | string>();
   const [data, setData] = useState<Response | null>();
-  const [timer, setTimer] = useState(-1);
+  const [timer, setTimer] = useState<NodeJS.Timeout | number>(-1);
   const [currentFrame, setCurrentFrame] = useState(0);
   const [relativePos, setRelativePos] = useState<RelativePositionType | null>(null);
   const [predicting, setPredicting] = useState(false);
 
-  const parentRef = useRef<HTMLDivElement>();
-  const vidRef = useRef<HTMLVideoElement>();
+  const parentRef = useRef<HTMLDivElement>(null);
+  const vidRef = useRef<HTMLVideoElement>(null);
 
   const predict = () => {
     setPredicting(true);
@@ -120,9 +116,9 @@ export default function Video() {
       {videoBlob && video && (
         <div className='flex flex-col h-full w-full'>
           <div className='w-full text-center border-b border-black text-base'>VIDEO RESULT</div>
-          <div className='relative mt-10 h-1/2'>
+          <div className='relative mt-10 h-1/2' ref={parentRef}>
             <video
-              src={videoBlob}
+              src={videoBlob.toString()}
               className='h-full absolute m-auto inset-0'
               controls={true}
               ref={vidRef as any}
@@ -130,10 +126,11 @@ export default function Video() {
                 const parentPos = parentRef.current?.getBoundingClientRect();
                 const childPos = vidRef.current?.getBoundingClientRect();
 
+                console.log('Par, chil: ', parentPos, childPos);
                 if (!parentPos || !childPos) {
                   setRelativePos(null);
                 } else {
-                  console.log('Setting relative pos');
+                  console.log('Setting relative pos', parentPos, childPos);
                   setRelativePos({
                     left: childPos.left - parentPos.left,
                     top: childPos.top - parentPos.top,
@@ -149,13 +146,14 @@ export default function Video() {
                     () => {
                       if (!vidRef.current?.paused && data != null) {
                         const curFrame = Math.min(
-                          Math.round(data.fps * (vidRef.current?.currentTime || DEFAULT_FPS)),
+                          Math.round(data.fps * (vidRef.current?.currentTime || 0)),
                           data.frames.length - 1
                         );
-                        setCurrentFrame(curFrame);
+                        console.log('Relative pos: ', relativePos);
+                        setCurrentFrame(() => curFrame);
                       }
                     },
-                    (1 / data.fps) * 1000
+                    (1 / (data?.fps || DEFAULT_FPS)) * 1000
                   );
                   setTimer(t);
                 }
@@ -171,9 +169,10 @@ export default function Video() {
             />
             {relativePos != null && currentFrame != undefined && data != null && (
               <>
-                {data.frames[currentFrame].map((d, idx) => (
-                  <BoundingBox key={idx} relativePos={relativePos} detection={d} />
-                ))}
+                {data.frames[currentFrame].map((d, idx) => {
+                  console.log('Box found');
+                  return <BoundingBox key={idx} relativePos={relativePos} detection={d} />;
+                })}
               </>
             )}
           </div>
