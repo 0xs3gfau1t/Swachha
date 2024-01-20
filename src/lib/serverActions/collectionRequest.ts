@@ -22,14 +22,16 @@ export const addRequest = async (latitude: number, longitude: number) => {
 export const getUserRequestSummary = async (userId: string) => {
   const requests = await prisma.collectionRequest.findMany({
     where: { userId },
-    select: { id: true, status: true, Routes: true },
+    include: { Route: { include: { CollectionRequest: true } } },
+    orderBy: { createdAt: 'desc' },
   });
+  const dispatchedRoute = requests.find((r) => r.Route?.status == 'Dispatched')?.Route || undefined;
   const total = requests.length;
   const pending = requests.filter((r) => r.status === 'Pending').length;
   const dispatched = requests.filter((r) => r.status === 'Dispatched').length;
   const fulfilled = requests.filter((r) => r.status === 'Fulfilled').length;
-  console.log(requests)
-  return { total, pending, dispatched, fulfilled };
+  console.log(requests);
+  return { total, pending, dispatched, fulfilled, requests };
 };
 
 export const getRequests = async (
@@ -50,19 +52,27 @@ export const getAllRequest = async () => {
 };
 
 export const DispatchRoute = async (requestIds: string[]) => {
-  await prisma.collectionRequest.updateMany({
-    where: { id: { in: requestIds } },
+  const route = await prisma.routes.create({
     data: { status: 'Dispatched' },
   });
-  return prisma.routes.create({
-    data: { status: 'Dispatched', requests: { connect: requestIds.map((id) => ({ id })) } },
+  await prisma.collectionRequest.updateMany({
+    where: { id: { in: requestIds } },
+    data: { status: 'Dispatched', routesId: { set: route.id } },
   });
+  return route;
 };
 
 export const getDispatchedRoutes = async () => {
-  return prisma.routes.findMany({ include: { _count: { select: { requests: true } } } });
+  return prisma.routes.findMany({
+    select: {
+      CollectionRequest: true,
+      createdAt: true,
+      id: true,
+      status: true,
+    },
+  });
 };
 
 export const getRoute = async (id: string) => {
-  return prisma.routes.findUnique({ where: { id }, select: { requests: true } });
+  return prisma.routes.findUnique({ where: { id }, select: { CollectionRequest: true } });
 };

@@ -1,7 +1,6 @@
 'use client';
 
 import { getBillingStatus, getBillings, verifyToken } from '@/lib/serverActions/billing';
-import { Card, Stack, Typography } from '@mui/material';
 import KhaltiCheckout from 'khalti-checkout-web';
 import { FaRupeeSign } from 'react-icons/fa';
 import { useSession } from 'next-auth/react';
@@ -44,8 +43,10 @@ export default function Billing() {
   }, [session]);
 
   return (
-    <div className='flex flex-col justify-between items-center gap-4 h-full bg-gray-50 py-2'>
-      <h1 className='w-full font-semibold text-4xl'>Billing</h1>
+    <div className='flex flex-col justify-between items-center gap-4 w-full h-full bg-gray-50 px-2'>
+      <h1 className='w-full font-mono font-semibold text-2xl h-16 border-b py-2 flex justify-center items-center'>
+        Billing
+      </h1>
       <div className='flex flex-row gap-2 justify-between w-full'>
         <div className='flex-grow p-6 border border-gray-200 rounded-lg shadow flex flex-col justify-around gap-2 text-slate-800 font-semibold'>
           <span className='block text-2xl text-slate-800'>Due Bill</span>
@@ -78,26 +79,29 @@ export default function Billing() {
           </span>
         </div>
       </div>
-      <div className='relative flex-grow w-full overflow-x-auto shadow-md sm:rounded-t-sm'>
-        <h1 className='m-auto font-semibold text-md'>Billing History</h1>
-        <table className='w-full text-sm text-left rtl:text-right'>
-          <thead className='text-xs text-gray-700 uppercase'>
+      <div className='relative flex-grow w-full overflow-x-hidden'>
+        <h1 className='m-auto font-semibold text-md py-2 mb-2'>Billing History</h1>
+        <table className='w-full text-sm text-left'>
+          <thead className='text-xs text-gray-700 border uppercase'>
             <tr>
-              <th scope='col' className='px-6 py-3'>
+              <th scope='col' className='px-6 py-3 border'>
                 Payed At
               </th>
-              <th scope='col' className='px-6 py-3'>
+              <th scope='col' className='px-6 py-3 border'>
                 Amount
               </th>
             </tr>
           </thead>
           <tbody>
             {pastBill.map((bill) => (
-              <tr className='bg-white border-b hover:bg-gray-50' key={bill.id}>
-                <th scope='row' className='px-6 py-4 font-medium text-gray-900 whitespace-nowrap'>
+              <tr className='border hover:bg-gray-50' key={bill.id}>
+                <th
+                  scope='row'
+                  className='border px-6 py-4 font-medium text-gray-900 whitespace-nowrap'
+                >
                   {bill.createdAt.toISOString()}
                 </th>
-                <td className='px-6 py-4'>
+                <td className='px-6 py-4 border'>
                   <FaRupeeSign className='aspect-square inline-block h-full mr-2 font-thin size-4' />
                   {(bill.amount / 100).toFixed(2)}
                 </td>

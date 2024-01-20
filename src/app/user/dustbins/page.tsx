@@ -42,7 +42,6 @@ export default function DustBins() {
     navigator.geolocation.getCurrentPosition((pos) => {
       console.log(pos);
       setCurrentLoc({ fetched: true, lat: pos.coords.latitude, lng: pos.coords.longitude });
-      mapRef.current?.setView([pos.coords.latitude, pos.coords.longitude]);
     });
   }, []);
 

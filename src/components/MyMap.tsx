@@ -14,7 +14,6 @@ import {
   addRequest,
   getAllRequest,
   getDispatchedRoutes,
-  getRoute,
 } from '@/lib/serverActions/collectionRequest';
 
 const createRoutineMachineLayer = (_props: ControlOptions) => {
@@ -104,7 +103,7 @@ export default function MyMap() {
                   createdAt: data.createdAt,
                   id: data.id,
                   status: data.status,
-                  _count: { requests: positions.length },
+                  CollectionRequest: positions,
                 },
               ]);
             });
@@ -147,13 +146,11 @@ export default function MyMap() {
                 <th scope='row' className='px-6 py-4 font-medium text-gray-900 whitespace-nowrap'>
                   {route.createdAt.toISOString()}
                 </th>
-                <td className='px-6 py-4'>{route._count.requests}</td>
+                <td className='px-6 py-4'>{route.CollectionRequest.length}</td>
                 <td className='px-6 py-4'>{route.status}</td>
                 <td
                   className='px-6 py-4 cursor-pointer'
-                  onClick={() =>
-                    getRoute(route.id).then((data) => setPositions(data?.requests || []))
-                  }
+                  onClick={() => setPositions(route.CollectionRequest)}
                 >
                   <button className='w-full h-full flex flex-row'>
                     <GrFormView className='text-lg' />
