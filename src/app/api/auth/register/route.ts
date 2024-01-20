@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
   await transporter.sendMail({
     from: process.env.MAILER_ADD,
     to: creds.email,
-    subject: `Fohor Malai: User Registration`,
+    subject: `Swachha: User Registration`,
     html,
     attachments: [
       {

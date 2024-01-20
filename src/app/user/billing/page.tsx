@@ -20,7 +20,7 @@ export default function Billing() {
   let config = {
     publicKey: 'test_public_key_dc01532ce7554fa89770af2b5b4af531',
     productIdentity: session.data?.user.id || '1',
-    productName: 'Fohor Bill',
+    productName: 'Bill',
     productUrl: 'https://localhost:8000/mycard',
     eventHandler: {
       async onSuccess(payload: { amount: string; token: string }) {

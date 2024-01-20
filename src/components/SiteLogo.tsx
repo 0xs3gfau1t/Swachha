@@ -6,10 +6,10 @@ const SiteLogo = () => {
       <img
         src={'/icon.png'}
         className='h-14 aspect-square object-contain'
-        alt='Fohor Malai'
-        title='Fohor Malai'
+        alt='Swachha'
+        title='Swachha'
       />
-      <p>Fohor Malai</p>
+      <p>Swachha</p>
     </Link>
   );
 };
