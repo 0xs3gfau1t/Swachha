@@ -2,7 +2,7 @@
 import '@/app/global.css';
 import { MAX_REQUEST } from '@/constants';
 import { GrFormView } from 'react-icons/gr';
-import { getUserRequestSummary } from '@/lib/serverActions/collectionRequest';
+import { addRequest, getUserRequestSummary } from '@/lib/serverActions/collectionRequest';
 import { useSession } from 'next-auth/react';
 import L, { ControlOptions, Map } from 'leaflet';
 import { MapContainer, TileLayer, ZoomControl } from '@/components/MapComponents';
@@ -13,6 +13,7 @@ import 'leaflet-defaulticon-compatibility';
 import 'leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
+import { MapConsumer, Marker } from '@/components/MapLazyComponents';
 
 const createRoutineMachineLayer = (_props: ControlOptions) => {
   const instance = L.Routing.control({
@@ -44,25 +45,32 @@ export default function Request() {
 
   const mapRef = useRef<Map>(null);
   const routingRef = useRef<L.Routing.Control>(null);
-  const [positions, setPosition] = useState<L.LatLng[]>([]);
+  const [currentLoc, setCurrentLoc] = useState({ fetched: false, lat: 0, lng: 0 });
+  const [activeRoute, setActiveRoute] =
+    useState<Awaited<ReturnType<typeof getUserRequestSummary>>['requests'][number]['Route']>(null);
 
   useEffect(() => {
     if (session.status === 'unauthenticated') {
       router.push('/api/auth/signin');
       return;
     }
-    if (session.data)
-      getUserRequestSummary(session.data.user.id).then(async (s) => {
-        setSummary(s);
-      });
+    if (session.data) getUserRequestSummary(session.data.user.id).then(setSummary);
   }, [session]);
 
   useEffect(() => {
     routingRef.current?.hide();
-    routingRef.current?.setWaypoints(positions);
-    const p = positions.pop();
-    if (p) mapRef.current?.setView(L.latLng({ lat: p.lat, lng: p.lng }), 15);
-  }, [positions]);
+    navigator.geolocation.getCurrentPosition((pos) => {
+      setCurrentLoc({ fetched: true, lat: pos.coords.latitude, lng: pos.coords.longitude });
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!activeRoute) return;
+    routingRef.current?.hide();
+    routingRef.current?.setWaypoints(
+      activeRoute.CollectionRequest.map((c) => new L.LatLng(c.latitude, c.longitude))
+    );
+  }, [activeRoute]);
 
   if (!summary) return <div>Loading...</div>;
 
@@ -72,17 +80,46 @@ export default function Request() {
         Collection Requests
       </h1>
       <div className='flex flex-row gap-2 justify-between w-full'>
-        <div className='flex-grow w-1/3 p-6 border border-gray-200 rounded-lg shadow flex flex-col justify-around gap-2 text-slate-800 font-semibold'>
-          <span className='block text-slate-800'>Arriving</span>
-          <span className='block text-xl font-normal'>{summary.dispatched}</span>
-        </div>
-        <div className='flex-grow w-1/3 p-6 border border-gray-200 rounded-lg shadow flex flex-col justify-around gap-2 text-slate-800 font-semibold'>
-          <span className='block text-slate-800'>Remaining</span>
-          <span className='block text-xl font-normal'>{MAX_REQUEST - summary.total}</span>
-        </div>
-        <div className='flex-grow w-1/3 p-6 border border-gray-200 rounded-lg shadow flex flex-col justify-around gap-2 text-slate-800 font-semibold'>
-          <span className='block text-slate-800'>Total</span>
-          <span className='block text-xl font-normal'>{summary.total}</span>
+        <div className='flex-grow w-full p-2 border border-gray-200 rounded-lg shadow flex flex-col justify-around gap-2 text-slate-800'>
+          <h1 className='text-xl font-semibold'>Summary</h1>
+          <div>
+            <span className='block text-slate-800 py-2'>
+              Used <span className='font-bold'>{summary.total}</span> out of{' '}
+              <span className='font-bold'>{MAX_REQUEST}</span> requests
+            </span>
+            <div className='w-full h-1 relative bg-gray-200'>
+              <div
+                className='h-1/2 absolute left-0 bg-green-700'
+                style={{ width: `${(summary.total / MAX_REQUEST) * 100}%` }}
+              ></div>
+            </div>
+            <div>
+              <span className='block text-slate-800 py-2'>
+                Dispatched <span className='font-bold'>{summary.dispatched}</span> out of{' '}
+                <span className='font-bold'>{summary.total}</span> requests
+              </span>
+              <div className='w-full h-1 relative bg-gray-200'>
+                <div
+                  className='h-1/2 absolute left-0 bg-green-700'
+                  style={{ width: `${(summary.dispatched / summary.total) * 100}%` }}
+                ></div>
+              </div>
+            </div>
+            <div className='w-full flex justify-end'>
+              <button
+                className='shadown-md border-2 rounded-lg px-2 py-1 my-1 cursor-pointer'
+                onClick={() => {
+                  if (currentLoc.fetched)
+                    addRequest(currentLoc.lat, currentLoc.lng).then(() => {
+                      getUserRequestSummary(session.data!.user.id).then(setSummary);
+                    });
+                  else alert('Current location not fetched');
+                }}
+              >
+                Request
+              </button>
+            </div>
+          </div>
         </div>
       </div>
       <div className='w-full h-1/2 overflow-scroll'>
@@ -100,9 +137,48 @@ export default function Request() {
           className='rounded-md'
         >
           <TileLayer
-            url='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+            url={'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'}
             attribution='&copy; OpenStreetMap contributors'
             zIndex={0}
+          />
+          <>
+            {summary.requests.map((req) => {
+              return (
+                <Marker
+                  key={req.id}
+                  iconProps={{
+                    iconUrl: '/assets/pin.png',
+                    iconAnchor: [16, 32],
+                    iconSize: [32, 32],
+                  }}
+                  position={{
+                    lat: req.latitude,
+                    lng: req.longitude,
+                  }}
+                />
+              );
+            })}
+          </>
+          {!!activeRoute?.busLatitude && !!activeRoute.busLongitude ? (
+            <>
+              <Marker
+                position={{ lat: activeRoute.busLatitude, lng: activeRoute.busLongitude }}
+                iconProps={{
+                  iconUrl: '/assets/truck.png',
+                  iconAnchor: [16, 32],
+                  iconSize: [32, 32],
+                }}
+              />
+            </>
+          ) : (
+            <></>
+          )}
+          <MapConsumer
+            eventsHandler={{
+              click: (e) => {
+                setCurrentLoc({ fetched: true, lat: e.latlng.lat, lng: e.latlng.lng });
+              },
+            }}
           />
           <ZoomControl position='topright' />
           <RoutingMachine ref={routingRef} />
@@ -137,11 +213,12 @@ export default function Request() {
                 <td
                   className='px-6 py-4 cursor-pointer'
                   onClick={() => {
-                    setPosition(
-                      req.Route?.CollectionRequest.map((pos) =>
-                        L.latLng(pos.latitude, pos.longitude)
-                      ) || []
-                    );
+                    setActiveRoute(req.Route);
+                    if (req.Route?.busLatitude && req.Route.busLongitude)
+                      mapRef.current?.flyTo({
+                        lat: req.Route.busLatitude,
+                        lng: req.Route.busLongitude,
+                      });
                   }}
                 >
                   <button className='w-full h-full flex flex-row'>
