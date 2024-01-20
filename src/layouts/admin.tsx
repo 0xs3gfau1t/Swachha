@@ -40,7 +40,7 @@ export default function AdminNav({ children }: { children: ReactNode }) {
         </button>
       </div>
       <div className='w-full h-[calc(100%-5rem)] flex flex-row'>
-        <div className='w-40 h-full flex flex-col items-center justify-around border-r-2'>
+        <div className='w-40 h-full flex flex-col items-center justify-center border-r-2'>
           {navEntries.map((i) => (
             <NavComponent name={i.name} link={i.link} key={i.name} />
           ))}
