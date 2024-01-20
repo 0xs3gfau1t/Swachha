@@ -28,7 +28,7 @@ psql> CREATE DATABASE swachha;
 
 ### ML Services
 
-- Refer to [this](https://github.com/0xs3gfau1t/waste-ML) repo to setup ML services
+- Refer to [this](https://github.com/0xs3gfau1t/swachha-ML) repo to setup ML services
 - Set variables in `constants.ts` file
 
 ## Run
@@ -38,3 +38,6 @@ yarn
 cp .env.example .env
 yarn dev
 ```
+
+## URLs:
+- https://www.canva.com/design/DAF2NM-qzj8/P7IRFBdCT3ei1C5iIMuZXQ/view
