@@ -48,6 +48,7 @@ model User {
   accounts      Account[]
   sessions      Session[]
   requests      CollectionRequest[]
+  Billing       Billing[]
 }
 
 model VerificationToken {
@@ -74,4 +75,12 @@ model Routes {
   requests  CollectionRequest[]
   status    String
   createdAt DateTime            @default(now())
+}
+
+model Billing {
+  id        String   @id @default(cuid())
+  amount    Int
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  createdAt DateTime @default(now())
 }

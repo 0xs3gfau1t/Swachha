@@ -8,7 +8,7 @@ import { ReactNode } from 'react';
 export default function UserLayout({ children }: { children: ReactNode }) {
   return (
     <SessionProvider>
-      <Container sx={{ height: '95vh' }}>
+      <Container className='h-screen'>
         <Stack
           direction={'column'}
           justifyContent={'space-between'}

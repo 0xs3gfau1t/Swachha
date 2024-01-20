@@ -1,4 +1,4 @@
-export {};
+export { };
 
 declare global {
   namespace NodeJS {
@@ -11,6 +11,8 @@ declare global {
       DOMAIN_URL: string;
       ACCESS_TOKEN_SECRET: string;
       NEXTAUTH_SECRET: string;
+      KHALTI_PUBLIC_KEY: string;
+      KHALTI_PRIVATE_KEY: string;
     }
   }
 }

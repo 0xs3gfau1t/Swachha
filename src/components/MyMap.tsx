@@ -1,21 +1,14 @@
 import '@/app/global.css';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { GrFormView } from 'react-icons/gr';
-import {
-  MapConsumer,
-  MapContainer,
-  Marker,
-  TileLayer,
-  ZoomControl,
-} from '@/components/MapComponents';
-import L, { ControlOptions } from 'leaflet';
-import { LeafletEventHandlerFnMap, Map } from 'leaflet';
+import L, { ControlOptions, LeafletEventHandlerFnMap, Map } from 'leaflet';
+import { MapConsumer, MapContainer, TileLayer, ZoomControl } from '@/components/MapComponents';
 import { createControlComponent } from '@react-leaflet/core';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-routing-machine';
 import 'leaflet-defaulticon-compatibility';
 import 'leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css';
-import { CollectionRequest, Routes } from '@prisma/client';
+import { CollectionRequest } from '@prisma/client';
 import {
   DispatchRoute,
   addRequest,

@@ -1,6 +1,8 @@
 'use client';
 
 import BottomNavItem from '@/components/bottom-nav-item';
+import { FaRegTrashAlt } from 'react-icons/fa';
+import { CiWallet } from 'react-icons/ci';
 import { Stack } from '@mui/material';
 import { AiOutlineHome, AiOutlineUser } from 'react-icons/ai';
 
@@ -8,6 +10,14 @@ const navItems = [
   {
     icon: <AiOutlineHome size={40} />,
     link: '/user',
+  },
+  {
+    icon: <CiWallet size={40} />,
+    link: '/user/billing',
+  },
+  {
+    icon: <FaRegTrashAlt size={40} />,
+    link: '/user/dustbins',
   },
   {
     icon: <AiOutlineUser size={40} />,
