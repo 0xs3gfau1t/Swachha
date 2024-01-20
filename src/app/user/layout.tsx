@@ -2,27 +2,37 @@
 
 import { SessionProvider } from 'next-auth/react';
 import { ReactNode } from 'react';
-import { FaRegTrashAlt } from 'react-icons/fa';
-import { CiWallet } from 'react-icons/ci';
-import { AiOutlineHome, AiOutlineUser } from 'react-icons/ai';
+import { CiRoute, CiBellOn, CiChat1, CiTrash, CiUser, CiWallet, CiImageOn } from 'react-icons/ci';
 import BottomNavItem from '@/components/bottom-nav-item';
 
 const navItems = [
   {
-    icon: <AiOutlineHome size={40} />,
-    link: '/user',
+    icon: <CiRoute size={30} />,
+    link: '/user/collection',
   },
   {
-    icon: <CiWallet size={40} />,
+    icon: <CiWallet size={30} />,
     link: '/user/billing',
   },
   {
-    icon: <FaRegTrashAlt size={40} />,
-    link: '/user/dustbins',
+    icon: <CiChat1 size={30} />,
+    link: '/user/chat',
   },
   {
-    icon: <AiOutlineUser size={40} />,
-    link: '/user/profile',
+    icon: <CiUser size={30} />,
+    link: '/user/',
+  },
+  {
+    icon: <CiBellOn size={30} />,
+    link: '/user/notifications',
+  },
+  {
+    icon: <CiImageOn size={30} />,
+    link: '/user/classification',
+  },
+  {
+    icon: <CiTrash size={30} />,
+    link: '/user/dustbins',
   },
 ];
 

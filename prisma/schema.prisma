@@ -49,6 +49,7 @@ model User {
   sessions      Session[]
   requests      CollectionRequest[]
   Billing       Billing[]
+  Notification  Notification[]
 }
 
 model VerificationToken {
@@ -93,4 +94,14 @@ model Report {
   path String
   from Int
   to   Int
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  user      User?    @relation(fields: [userId], references: [id])
+  userId    String?
+  title     String
+  body      String
+  thumbnail String
+  createdAt DateTime @default(now())
 }

@@ -2,7 +2,7 @@
 
 import { BoundingBox } from '@/components/BoundingBox';
 import UploadVideoComponent from '@/components/UploadComponent';
-import { FRAME_COUNT_THRESHOLD, LITTER_API_URL } from '@/constants';
+import { FRAME_COUNT_THRESHOLD, LITTER_API_URL, ML_URL } from '@/constants';
 import { reportLitteringServer } from '@/lib/serverActions/report';
 import { useRef, useState } from 'react';
 import { AiOutlineCloudUpload, AiOutlineSync } from 'react-icons/ai';
@@ -83,7 +83,7 @@ export default function Video() {
 
     const vidForm = new FormData();
     vidForm.append('vid', video);
-    fetch(LITTER_API_URL, { method: 'POST', body: vidForm })
+    fetch(`${ML_URL}/api/video`, { method: 'POST', body: vidForm })
       .then(async (res) => {
         if (res.status == 200) {
           const vidData = (await res.json()) as Response;
@@ -101,6 +101,7 @@ export default function Video() {
     <>
       {!video && (
         <UploadVideoComponent
+          accept='video/*'
           handleChange={(fl: FileList) => {
             if (fl) {
               setVideo(fl[0]);
