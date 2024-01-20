@@ -4,6 +4,7 @@ import { SessionProvider } from 'next-auth/react';
 import { ReactNode } from 'react';
 import { CiRoute, CiBellOn, CiChat1, CiTrash, CiUser, CiWallet, CiImageOn } from 'react-icons/ci';
 import BottomNavItem from '@/components/bottom-nav-item';
+import { FaRegMessage } from 'react-icons/fa6';
 
 const navItems = [
   {
