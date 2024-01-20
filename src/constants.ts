@@ -1,6 +1,7 @@
 export const URL = 'http://localhost:3000';
 export const API_URL = URL + '/api';
 export const LITTER_API_URL = 'http://localhost:3001/api/video';
+export const BOT_API_URL = 'http://192.168.43.27:5005/webhooks/rest/webhook';
 
 export const FRAME_COUNT_THRESHOLD = 2;
 

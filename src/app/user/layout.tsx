@@ -6,6 +6,7 @@ import { FaRegTrashAlt } from 'react-icons/fa';
 import { CiWallet } from 'react-icons/ci';
 import { AiOutlineHome, AiOutlineUser } from 'react-icons/ai';
 import BottomNavItem from '@/components/bottom-nav-item';
+import { FaRegMessage } from 'react-icons/fa6';
 
 const navItems = [
   {
@@ -19,6 +20,10 @@ const navItems = [
   {
     icon: <FaRegTrashAlt size={40} />,
     link: '/user/dustbins',
+  },
+  {
+    icon: <FaRegMessage size={40} />,
+    link: '/user/chat',
   },
   {
     icon: <AiOutlineUser size={40} />,
