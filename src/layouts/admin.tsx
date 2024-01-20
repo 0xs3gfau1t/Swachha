@@ -8,6 +8,7 @@ const navEntries = [
   { name: 'Reports', link: '/admin/dashboard/reports' },
   { name: 'Requests', link: '/admin/dashboard/requests' },
   { name: 'Register User', link: '/admin/dashboard/register' },
+  { name: 'Video Demo', link: '/admin/dashboard/video' },
 ];
 
 export default function AdminNav({ children }: { children: ReactNode }) {
