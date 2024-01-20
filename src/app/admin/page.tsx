@@ -15,7 +15,6 @@ export default function Admin() {
   async function onSubmit() {
     try {
       const res = await signIn('login-user', { email, password, redirect: false });
-      signIn("register-")
       if (res?.ok) {
         router.push('/admin/dashboard');
       }
@@ -25,23 +24,41 @@ export default function Admin() {
   }
 
   return (
-    <Container sx={{ padding: 10 }}>
-      <Grid container gap={5}>
+    <Container
+      sx={{ padding: 10, display: 'flex', justifyContent: 'center', alignItems: 'center' }}
+    >
+      <Grid
+        container
+        gap={5}
+        border={2}
+        width={'50%'}
+        borderRadius={'0.5rem'}
+        paddingY={4}
+        paddingX={10}
+      >
         <Grid item xs={12}>
-          <Typography variant='h3' textAlign={'center'}>
+          <Typography variant='h3' textAlign={'center'} fontFamily={'monospace'}>
             Admin Login
           </Typography>
         </Grid>
-        <Grid item xs={12} display={'flex'} gap={2} justifyContent={'center'}>
+        <Grid item xs={12} display={'flex'} gap={2} justifyContent={'space-between'}>
           <Typography textAlign={'left'}>Email</Typography>
-          <input type='email' onChange={(e) => setEmail(e.target.value)} />
+          <input
+            type='email'
+            onChange={(e) => setEmail(e.target.value)}
+            className='border-b border-black focus:outline-none'
+          />
         </Grid>
-        <Grid item xs={12} display={'flex'} gap={2} justifyContent={'center'}>
+        <Grid item xs={12} display={'flex'} gap={2} justifyContent={'space-between'}>
           <Typography textAlign={'left'}>Password</Typography>
-          <input type='password' onChange={(e) => setPassword(e.target.value)} />
+          <input
+            type='password'
+            onChange={(e) => setPassword(e.target.value)}
+            className='border-b border-black focus:outline-none'
+          />
         </Grid>
         <Grid item xs={12} display='flex' justifyContent={'center'}>
-          <Button onClick={onSubmit} variant='contained'>
+          <Button onClick={onSubmit} variant='outlined'>
             Submit
           </Button>
         </Grid>

@@ -3,5 +3,6 @@
 import prisma from '@/lib/prisma';
 
 export async function getNotifications(userId: string) {
-  return prisma.notification.findMany({ where: { OR: [{ userId }, { userId: null }] } });
+  const g = await prisma.notification.findMany({ where: { OR: [{ userId }, { userId: null }] } });
+  return [...g, ...g, ...g, ...g];
 }
