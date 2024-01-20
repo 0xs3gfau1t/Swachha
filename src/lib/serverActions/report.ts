@@ -21,3 +21,17 @@ export async function reportLitteringServer(formData: FormData) {
 export async function fetchReports() {
   return await prisma.report.findMany({});
 }
+
+export async function dashboardReports() {
+  const user_count = await prisma.user.count();
+  const request_count = await prisma.collectionRequest.count();
+  const route_count = await prisma.routes.count();
+  const billing_count = await prisma.billing.count();
+
+  return {
+    user_count,
+    request_count,
+    route_count,
+    billing_count,
+  };
+}
