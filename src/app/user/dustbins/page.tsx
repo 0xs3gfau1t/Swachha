@@ -47,16 +47,18 @@ export default function DustBins() {
   }, []);
 
   return (
-    <div className='w-full h-full overflow-scroll'>
-      <h1>Public Dustbins</h1>
+    <div className='flex flex-col justify-between items-center gap-4 w-full h-full bg-gray-50 px-2'>
+      <h1 className='w-full font-mono font-semibold text-2xl h-16 border-b py-2 flex justify-center items-center'>
+        Public Dustbins
+      </h1>
       <MapContainer
         ref={mapRef}
         touchZoom={false}
         zoomControl={false}
         center={{ lat: 26.791905896045343, lng: 87.29230341862062 }}
         zoom={17}
-        style={{ height: '100%', width: '100%', zIndex: '0!important' }}
-        className='rounded-md'
+        style={{ zIndex: '0!important' }}
+        className='rounded-md h-[calc(100%-2.5rem)] w-full'
       >
         <TileLayer
           url='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'

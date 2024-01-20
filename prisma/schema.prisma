@@ -60,21 +60,22 @@ model VerificationToken {
 }
 
 model CollectionRequest {
-  id        String  @id @default(cuid())
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
   latitude  Float
   longitude Float
   status    String
-  User      User?   @relation(fields: [userId], references: [id])
+  User      User?    @relation(fields: [userId], references: [id])
   userId    String?
-  Routes    Routes? @relation(fields: [routesId], references: [id])
+  Route     Routes?  @relation(fields: [routesId], references: [id])
   routesId  String?
 }
 
 model Routes {
-  id        String              @id @default(cuid())
-  requests  CollectionRequest[]
-  status    String
-  createdAt DateTime            @default(now())
+  id                String              @id @default(cuid())
+  status            String
+  createdAt         DateTime            @default(now())
+  CollectionRequest CollectionRequest[]
 }
 
 model Billing {
