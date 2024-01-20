@@ -83,6 +83,7 @@ export default function Video() {
 
     const vidForm = new FormData();
     vidForm.append('vid', video);
+
     fetch(LITTER_API_URL, { method: 'POST', body: vidForm })
       .then(async (res) => {
         if (res.status == 200) {
@@ -90,7 +91,10 @@ export default function Video() {
           setData(vidData);
 
           if (reportLittering(vidData)) {
+            vidForm.append('from', '0');
+            vidForm.append('to', '1');
             reportLitteringServer(vidForm);
+            alert('Littering found. Reported video');
           }
         }
       })
