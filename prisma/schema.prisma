@@ -84,3 +84,10 @@ model Billing {
   userId    String
   createdAt DateTime @default(now())
 }
+
+model Report {
+  id   String @id @default(cuid())
+  path String
+  from Int
+  to   Int
+}

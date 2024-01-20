@@ -2,7 +2,8 @@
 
 import { BoundingBox } from '@/components/BoundingBox';
 import UploadVideoComponent from '@/components/UploadComponent';
-import { LITTER_API_URL } from '@/constants';
+import { FRAME_COUNT_THRESHOLD, LITTER_API_URL } from '@/constants';
+import { reportLitteringServer } from '@/lib/serverActions/report';
 import { useRef, useState } from 'react';
 import { AiOutlineCloudUpload, AiOutlineSync } from 'react-icons/ai';
 import { GrClear } from 'react-icons/gr';
@@ -18,7 +19,7 @@ type Classes = {
 };
 
 type Response = {
-  frames: Classes[];
+  frames: Classes[][];
   fps: number;
   classes: string[];
 };
@@ -31,6 +32,38 @@ export type RelativePositionType = {
   width: number;
   height: number;
 };
+
+function report(frames: Classes[][], index: number, count: number) {
+  console.log(
+    'Reporting from ',
+    Math.max(0, index - count),
+    ' to ',
+    Math.min(frames.length - 1, index)
+  );
+
+  // Generate clip
+}
+
+function reportLittering(data: Response | null | undefined) {
+  if (!data) return;
+  let litterFrameCount = 0;
+
+  let hasLittering = false;
+
+  data.frames.forEach((frame, ind) => {
+    if (frame[0]?.name === 'litter_throw') {
+      litterFrameCount++;
+    } else if (litterFrameCount < FRAME_COUNT_THRESHOLD && frame[0]?.name !== 'litter_throw') {
+      litterFrameCount = 0;
+    } else if (litterFrameCount > FRAME_COUNT_THRESHOLD && frame[0]?.name !== 'litter_throw') {
+      hasLittering = true;
+      // TODO: Optimize
+      report(data.frames, ind - 1, litterFrameCount);
+      litterFrameCount = 0;
+    }
+  });
+  return hasLittering;
+}
 
 export default function Video() {
   const [video, setVideo] = useState<File | null>(null);
@@ -48,20 +81,21 @@ export default function Video() {
     setPredicting(true);
     if (!video) return;
 
-    const data = new FormData();
-    data.append('vid', video);
-    fetch(LITTER_API_URL, { method: 'POST', body: data })
+    const vidForm = new FormData();
+    vidForm.append('vid', video);
+    fetch(LITTER_API_URL, { method: 'POST', body: vidForm })
       .then(async (res) => {
         if (res.status == 200) {
-          const data = (await res.json()) as Response;
-          console.log(data);
-          setData(data);
+          const vidData = (await res.json()) as Response;
+          setData(vidData);
+
+          if (reportLittering(vidData)) {
+            reportLitteringServer(vidForm);
+          }
         }
       })
       .finally(() => setPredicting(false));
   };
-
-  console.log(currentFrame, timer, data?.frames);
 
   return (
     <>
@@ -92,8 +126,9 @@ export default function Video() {
                 const parentPos = parentRef.current?.getBoundingClientRect();
                 const childPos = vidRef.current?.getBoundingClientRect();
 
-                if (!parentPos || !childPos) setRelativePos(null);
-                else {
+                if (!parentPos || !childPos) {
+                  setRelativePos(null);
+                } else {
                   console.log('Setting relative pos');
                   setRelativePos({
                     left: childPos.left - parentPos.left,
@@ -132,10 +167,9 @@ export default function Video() {
             />
             {relativePos != null && currentFrame != undefined && data != null && (
               <>
-                {data.frames[currentFrame].map((d, idx) => {
-                  console.log('Box for: ', currentFrame);
-                  return <BoundingBox key={idx} relativePos={relativePos} detection={d} />;
-                })}
+                {data.frames[currentFrame].map((d, idx) => (
+                  <BoundingBox key={idx} relativePos={relativePos} detection={d} />
+                ))}
               </>
             )}
           </div>
